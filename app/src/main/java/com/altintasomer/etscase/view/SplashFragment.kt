@@ -30,11 +30,14 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
     private lateinit var binding : FragmentSplashBinding
     private var actionBar: ActionBar? = null
     private var job : Job? = null
+    private val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init(view)
 
-      job =  CoroutineScope(Dispatchers.Main).launch {
+      job =  CoroutineScope(Dispatchers.Main+exceptionHandler).launch {
           delay(3000)
         }
 
