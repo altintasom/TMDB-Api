@@ -1,4 +1,4 @@
-package com.altintasomer.etscase.model
+package com.altintasomer.etscase.model.network
 
 data class PopularFilm(
     val page: Int,
