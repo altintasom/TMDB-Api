@@ -6,6 +6,7 @@ import retrofit2.Response
 
 interface Repo {
 
-    suspend fun getFilms(query: String?) : Response<PopularFilm>
+    suspend fun searchFilms(query: String?,page : String?) : Response<PopularFilm>
     suspend fun getFilmDetail(tv_id : String) : Response<FilmDetail>
+    suspend fun getFilms(page: String?) : Response<PopularFilm>
 }
