@@ -10,9 +10,12 @@ import retrofit2.http.Query
 
 interface TMDBApi {
 
-    @GET("3/tv/popular")
-    suspend fun getFilms(@Query("api_key") apiKey : String? = API_KEY,@Query("query") query : String?,@Query("language") language : String? = Utils.LANGUAGE,@Query("page") page : String? = "1") : Response<PopularFilm>
+    @GET("search/tv")
+    suspend fun searchFilms(@Query("api_key") apiKey : String? = API_KEY, @Query("query") query : String?, @Query("language") language : String? = Utils.LANGUAGE, @Query("page") page : String? = "1", @Query("include_adult") include_adult : Boolean? = false) : Response<PopularFilm>
 
-    @GET("3/tv/{tv_id}")
+    @GET("tv/{tv_id}")
     suspend fun getFilmDetail(@Path("tv_id") tv_id : String,@Query("api_key") apiKey : String? = API_KEY) : Response<FilmDetail>
+
+    @GET("tv/popular")
+    suspend fun getFilms(@Query("api_key") apiKey : String? = API_KEY,@Query("language") language : String? = Utils.LANGUAGE,@Query("page") page : String? = "1") : Response<PopularFilm>
 }

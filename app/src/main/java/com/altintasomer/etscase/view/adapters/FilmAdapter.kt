@@ -50,4 +50,16 @@ class FilmAdapter (private val onItemClick : (result : Result) -> Unit) : Recycl
     }
 
     override fun getItemCount(): Int = differ.currentList.size
+
+    fun clearList(){
+        val tempData = differ.currentList
+        tempData.forEach {
+            deleteResult(it)
+        }
+        notifyDataSetChanged()
+    }
+
+    private fun deleteResult(result: Result){
+        differ.currentList.remove(result)
+    }
 }

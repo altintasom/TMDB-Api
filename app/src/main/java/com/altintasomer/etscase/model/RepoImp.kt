@@ -7,8 +7,9 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class RepoImp @Inject constructor(private val api : TMDBApi ) : Repo{
-    override suspend fun getFilms(query: String?): Response<PopularFilm> = api.getFilms(query = query)
+    override suspend fun searchFilms(query: String?,page :String?): Response<PopularFilm> = api.searchFilms(query = query,page = page)
     override suspend fun getFilmDetail(tv_id: String): Response<FilmDetail> = api.getFilmDetail(tv_id = tv_id)
+    override suspend fun getFilms(page: String?): Response<PopularFilm> = api.getFilms(page = page)
 
 
 }

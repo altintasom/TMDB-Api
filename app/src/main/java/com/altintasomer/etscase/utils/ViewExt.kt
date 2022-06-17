@@ -1,4 +1,4 @@
-package com.altintasomer.etscase
+package com.altintasomer.etscase.utils
 
 import androidx.appcompat.widget.SearchView
 
