@@ -54,7 +54,6 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
         }
         binding.title = firebaseRemoteConfig.getString("splash_title")
         if (!isConnected()){
-            binding.title = ""
             alertShow()
         }
 
@@ -129,7 +128,11 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
         view.findViewById<TextView>(R.id.btnOk).setOnClickListener {
             if (isConnected()){
                 alertDialog.dismiss()
-                findNavController().navigate(R.id.action_splashFragment_to_mainFragment2)
+                job?.cancel()
+                job =  CoroutineScope(Dispatchers.Main+exceptionHandler).launch {
+                    delay(3000)
+                        findNavController().navigate(R.id.action_splashFragment_to_mainFragment2)
+                }
             }else {
                 alertDialog.dismiss()
                 alertShow()
