@@ -1,5 +1,6 @@
 package com.altintasomer.etscase.view.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Adapter
@@ -26,15 +27,19 @@ class FilmAdapter (private val onItemClick : (result : Result) -> Unit) : Recycl
         }
 
     }
-
-    val differ = AsyncListDiffer(this,differCallBak)
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateList(list: List<Result>, fromSearchingFirst : Boolean){
+        differ.submitList(list)
+        if (fromSearchingFirst) notifyDataSetChanged()
+    }
+   private val differ = AsyncListDiffer(this,differCallBak)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilmItemViewHolder {
         val binding = LayoutFilmItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return FilmItemViewHolder(binding).apply {
             binding.root.setOnClickListener {
                 adapterPosition.also {
                     if (it != Adapter.NO_SELECTION){
-                        differ.currentList.get(it)?.let { result ->
+                        differ.currentList[it]?.let { result ->
                             onItemClick(result)
                         }
                     }
@@ -50,16 +55,4 @@ class FilmAdapter (private val onItemClick : (result : Result) -> Unit) : Recycl
     }
 
     override fun getItemCount(): Int = differ.currentList.size
-
-    fun clearList(){
-        val tempData = differ.currentList
-        tempData.forEach {
-            deleteResult(it)
-        }
-        notifyDataSetChanged()
-    }
-
-    private fun deleteResult(result: Result){
-        differ.currentList.remove(result)
-    }
 }

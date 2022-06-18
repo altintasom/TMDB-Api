@@ -1,8 +1,11 @@
 package com.altintasomer.etscase.view
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -26,7 +29,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private lateinit var layoutManager: GridLayoutManager
     private val viewModel : MainViewModel by viewModels()
     private  var textChangeJob: Job? = null
-
+    private  var searchView:SearchView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,20 +44,22 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         init(view)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun init(view: View) {
         binding = FragmentMainBinding.bind(view)
         setHasOptionsMenu(true)
-        viewModel.getFilms()
 
         layoutManager = GridLayoutManager(requireContext(),3,GridLayoutManager.VERTICAL,false)
 
         binding.rvMain.also {
             it.layoutManager = layoutManager
             it.adapter =adapter
+            it.setHasFixedSize(true)
         }.addOnScrollListener(object: PaginationScrollListener(layoutManager){
             override fun loadMoreItems() {
                 viewModel.currentPage+=1
-                if (viewModel.fromSearching) viewModel.searchFilms(viewModel.searchQuery.value)  else viewModel.getFilms()
+                viewModel.fromSearchingFirst = false
+                if (viewModel.fromSearching)viewModel.searchFilms(viewModel.searchQuery) else viewModel.getFilms()
 
             }
 
@@ -72,21 +77,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             it.getContentIfNotHandled()?.let {
                 when(it.status){
                     Status.LOADING -> {
-                        Log.d(TAG, "init: loading")
                         binding.layoutProgress.visibility = View.VISIBLE
                     }
                     Status.SUCCESS -> {
                         binding.layoutProgress.visibility = View.GONE
-                        Log.d(TAG, "init: success")
                         it.data?.let { results->
                             if (!results.isNullOrEmpty()){
-                                val result = it.data.get(0)
-                                Log.d(TAG, "init: data: ${result}")
-                                adapter.differ.submitList(it.data)
-
-                            }else{
-                                adapter.differ.submitList(null)
-
+                              adapter.updateList(it.data,viewModel.fromSearchingFirst)
                             }
                         }
 
@@ -108,12 +105,26 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         inflater.inflate(R.menu.menu,menu)
 
         val searchItem = menu.findItem(R.id.actionSearch)
-        val searchView = searchItem.actionView as SearchView
-        searchView.onQueryTextChanged {
+         searchView = searchItem.actionView as SearchView
+        val pendingQuery = viewModel.searchQuery
+
+        if (!pendingQuery.isNullOrEmpty()){
+            viewModel.fromSearching = true
+            searchItem.expandActionView()
+            searchView?.hideKeyboard()
+            searchView?.setQuery(pendingQuery,false)
+        }
+        searchView?.onQueryTextChanged {
             textChangeJob?.cancel()
             textChangeJob = CoroutineScope(Dispatchers.Main).launch {
-                delay(500)
-                viewModel.searchFilms(it)
+                if (it.length >= 3){
+                    delay(500)
+                    viewModel.fromSearching = true
+                    viewModel.fromSearchingFirst = true
+                    viewModel.clearSearchList()
+                    viewModel.searchQuery = it
+                    viewModel.searchFilms(it)
+                }
             }
         }
     }
@@ -127,4 +138,12 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         textChangeJob?.cancel()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        searchView?.setOnQueryTextListener(null)
+    }
+    fun View.hideKeyboard() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(getWindowToken(), 0)
+    }
 }
