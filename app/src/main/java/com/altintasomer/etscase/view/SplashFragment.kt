@@ -20,13 +20,19 @@ import androidx.core.app.ActivityCompat
 import androidx.navigation.fragment.findNavController
 import com.altintasomer.etscase.R
 import com.altintasomer.etscase.databinding.FragmentSplashBinding
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import javax.inject.Inject
 
 private const val TAG = "SplashFragment"
 @AndroidEntryPoint
 class SplashFragment : Fragment(R.layout.fragment_splash) {
 
+    @Inject
+    lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
     private lateinit var binding : FragmentSplashBinding
     private var actionBar: ActionBar? = null
     private var job : Job? = null
@@ -39,14 +45,12 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
 
       job =  CoroutineScope(Dispatchers.Main+exceptionHandler).launch {
           delay(3000)
+          if (isConnected())
+            findNavController().navigate(R.id.action_splashFragment_to_mainFragment2)
         }
-
-        binding.title = "ETS Tour"
+        binding.title = firebaseRemoteConfig.getString("splash_title")
         if (isConnected()){
             Toast.makeText(requireContext(),"Connected",Toast.LENGTH_LONG).show()
-            job?.invokeOnCompletion {
-                findNavController().navigate(R.id.action_splashFragment_to_mainFragment2)
-            }
         }
         else
             Toast.makeText(requireContext(),"Disconnected",Toast.LENGTH_LONG).show()
