@@ -7,6 +7,8 @@
         <entry key="app/src/main/res/drawable/btn_neutral_bg.xml" value="0.296" />
         <entry key="app/src/main/res/drawable/btn_success_bg.xml" value="0.296" />
         <entry key="app/src/main/res/drawable/btn_warning_bg.xml" value="0.296" />
+        <entry key="app/src/main/res/drawable/dialog_bg.xml" value="0.345" />
+        <entry key="app/src/main/res/drawable/ic_baseline_warning_24.xml" value="0.1935" />
         <entry key="app/src/main/res/drawable/title_error_bg.xml" value="0.296" />
         <entry key="app/src/main/res/drawable/title_success_bg.xml" value="0.296" />
         <entry key="app/src/main/res/drawable/title_warning_bg.xml" value="0.296" />
@@ -16,7 +18,9 @@
         <entry key="app/src/main/res/layout/fragment_splash.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/layout/layout_film_item.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/layout/layout_item_detail.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/layout/layout_warning_dialog.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/menu/menu.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/xml/xml.xml" value="0.19947916666666668" />
       </map>
     </option>
   </component>

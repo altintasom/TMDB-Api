@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
+        <import type="android.text.Html"/>
         <variable
+
             name="filmDetail"
             type="com.altintasomer.etscase.model.network.FilmDetail" />
     </data>
@@ -44,11 +46,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{filmDetail.name}"
+            android:text="@{Html.fromHtml(@string/name(filmDetail.name))}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cardView2"
-            tools:text="The Boys"/>
+            tools:text="Name: \nThe Boys"/>
 
         <TextView
             android:id="@+id/tvDetailLanguage"
@@ -56,11 +58,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{filmDetail.original_language}"
+            android:text="@{Html.fromHtml(@string/language(filmDetail.original_language))}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDetailName"
-            tools:text="en"/>
+            tools:text="Language:\n en"/>
 
         <TextView
             android:id="@+id/tvDetailDate"
@@ -68,11 +70,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{filmDetail.last_air_date}"
+            android:text="@{Html.fromHtml(@string/last_air_date(filmDetail.last_air_date))}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDetailLanguage"
-            tools:text="2022-06-16"/>
+            tools:text="Last air date: \nLast air date: 2022-06-16"/>
 
         <TextView
             android:id="@+id/tvDetaildesc"
@@ -80,11 +82,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{filmDetail.overview}"
+            android:text="@{Html.fromHtml(@string/description(filmDetail.overview))}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDetailDate"
-            tools:text="A group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty."/>
+            tools:text="'Description: \nA group of vigilantes known informally as “The Boys” set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty."/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

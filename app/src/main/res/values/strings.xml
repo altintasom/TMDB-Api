@@ -4,4 +4,11 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="error_connection">Connection error!</string>
     <string name="error">ERROR!</string>
+    <string name="warning_connection_header">Bağlantı Uyarısı</string>
+    <string name="warning_connection_titlr">Internet bağlantısını kontrol ediniz.</string>
+    <string name="name"><![CDATA[<b>Name: </b>]]> %1$s</string>
+    <string name="language"><![CDATA[<b>Language: </b>]]> %1$s</string>
+    <string name="last_air_date"><![CDATA[<b>Last Air Date: \n</b>]]> %1$s</string>
+    <string name="description"><![CDATA[<b>Description: </b>]]> %1$s</string>
+
 </resources>

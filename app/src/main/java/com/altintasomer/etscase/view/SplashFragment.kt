@@ -1,6 +1,7 @@
 package com.altintasomer.etscase.view
 
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -12,10 +13,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.navigation.fragment.findNavController
 import com.altintasomer.etscase.R
@@ -49,11 +53,11 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
             findNavController().navigate(R.id.action_splashFragment_to_mainFragment2)
         }
         binding.title = firebaseRemoteConfig.getString("splash_title")
-        if (isConnected()){
-            Toast.makeText(requireContext(),"Connected",Toast.LENGTH_LONG).show()
+        if (!isConnected()){
+            binding.title = ""
+            alertShow()
         }
-        else
-            Toast.makeText(requireContext(),"Disconnected",Toast.LENGTH_LONG).show()
+
     }
 
     private fun init(view: View) {
@@ -112,5 +116,29 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
         actionBar?.show()
     }
 
+    fun alertShow(){
+        val builder = AlertDialog.Builder(requireContext(),R.style.AlertDialogTheme)
+        val view = LayoutInflater.from(requireContext()).inflate(R.layout.layout_warning_dialog, requireActivity().findViewById<ConstraintLayout>(R.id.layoutDialogContainer))
+        builder.setView(view)
+        val alertDialog = builder.create()
+        view.findViewById<TextView>(R.id.btnNo).setOnClickListener {
+            alertDialog.dismiss()
+            requireActivity().finishAndRemoveTask()
+        }
+
+        view.findViewById<TextView>(R.id.btnOk).setOnClickListener {
+            if (isConnected()){
+                alertDialog.dismiss()
+                findNavController().navigate(R.id.action_splashFragment_to_mainFragment2)
+            }else {
+                alertDialog.dismiss()
+                alertShow()
+            }
+        }
+
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(0))
+        alertDialog.show()
+        alertDialog.setCanceledOnTouchOutside(false)
+    }
 
 }
