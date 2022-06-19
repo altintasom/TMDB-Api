@@ -1,4 +1,4 @@
-package com.altintasomer.etscase.di
+package com.altintasomer.etscase.utils
 
 
 class Utils {
