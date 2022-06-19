@@ -1,10 +1,9 @@
 package com.altintasomer.etscase.di
 
 import com.altintasomer.etscase.R
-import com.altintasomer.etscase.di.Utils.Companion.BASE_URL
+import com.altintasomer.etscase.utils.Utils.Companion.BASE_URL
 import com.altintasomer.etscase.model.RepoImp
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import dagger.Module
 import dagger.Provides
