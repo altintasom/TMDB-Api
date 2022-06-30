@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -20,6 +21,7 @@ import com.altintasomer.etscase.view.adapters.FilmAdapter
 import com.altintasomer.etscase.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 
 private const val TAG = "MainFragment"
 @AndroidEntryPoint
@@ -30,6 +32,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     private val viewModel : MainViewModel by viewModels()
     private  var textChangeJob: Job? = null
     private  var searchView:SearchView? = null
+    private lateinit var job: Job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,31 +76,37 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
         })
 
-        viewModel.results.observe(viewLifecycleOwner){
-            it.getContentIfNotHandled()?.let {
-                when(it.status){
-                    Status.LOADING -> {
-                        binding.layoutProgress.visibility = View.VISIBLE
-                    }
-                    Status.SUCCESS -> {
-                        binding.layoutProgress.visibility = View.GONE
-                        it.data?.let { results->
-                            if (!results.isNullOrEmpty()){
-                              adapter.updateList(it.data,viewModel.fromSearchingFirst)
-                            }
-                        }
+       job = CoroutineScope(Dispatchers.Main).launch {
+           viewModel.resultsFlow.collect {
+               it.getContentIfNotHandled()?.let {
 
-                    }
+                   when(it.status){
+                       Status.LOADING -> {
+                           binding.layoutProgress.visibility = View.VISIBLE
+                       }
+                       Status.SUCCESS -> {
+                           binding.layoutProgress.visibility = View.GONE
+                           it.data?.let { results->
+                               if (!results.isNullOrEmpty()){
+                                   adapter.updateList(it.data,viewModel.fromSearchingFirst)
+                               }
+                           }
+                       }
+                       Status.ERROR -> {
+                           binding.layoutProgress.visibility = View.GONE
+                           Log.e(TAG, "init: error: ${it.message}")
+                           Toast.makeText(requireContext(),it.message?:"Error", Toast.LENGTH_SHORT).show()
+                       }
+                   }
 
-                    Status.ERROR ->{
-                        binding.layoutProgress.visibility = View.GONE
-                        Log.e(TAG, "init: error: ${it.message}")
-                    }
-                }
-            }
+               }
+           }
         }
+    }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 
 
@@ -142,7 +151,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         super.onDestroyView()
         searchView?.setOnQueryTextListener(null)
     }
-    fun View.hideKeyboard() {
+    private fun View.hideKeyboard() {
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(getWindowToken(), 0)
     }
