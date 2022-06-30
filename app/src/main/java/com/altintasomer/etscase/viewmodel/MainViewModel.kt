@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.altintasomer.etscase.R
 import com.altintasomer.etscase.model.RepoImp
@@ -14,8 +13,7 @@ import com.altintasomer.etscase.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,8 +25,10 @@ class MainViewModel @Inject constructor(
     private val repoImp: RepoImp
 ) : ViewModel() {
 
-    private val _results = MutableLiveData<Event<Resource<List<Result>>>>()
-    val results get() = _results
+    private val _resultsFlow =
+        MutableStateFlow<Event<Resource<List<Result>>>>(Event(Resource.success(arrayListOf())))
+    val resultsFlow: StateFlow<Event<Resource<List<Result>>>> = _resultsFlow
+
     //Searching text
     var searchQuery = ""
 
@@ -46,10 +46,10 @@ class MainViewModel @Inject constructor(
     val isLoading get() = _isLoading
 
     //page number for pagination
-     var currentPage = 1
+    var currentPage = 1
 
     //checking request from searching
-     var fromSearching = false
+    var fromSearching = false
 
     //checking first searching from pagination and refresh adapter (if it is equal to true, adapter refresh)
     var fromSearchingFirst = false
@@ -61,79 +61,61 @@ class MainViewModel @Inject constructor(
     fun searchFilms(searchQuery: String?) {
         fromSearching = true
 
-        viewModelScope.launch(Dispatchers.IO) {
-            _results.postValue(Event(Resource.loading()))
-            _isLoading = true
-            val response = try {
-                repoImp.searchFilms(searchQuery, currentPage.toString())
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _results.postValue(Event(Resource.error(context.getString(R.string.error_connection))))
-                return@launch
-            }
+        _resultsFlow.value = Event(Resource.loading())
+        viewModelScope.launch {
 
-
-            if (response.isSuccessful) {
-                val resultList = response.body()?.results
-                response.body()?.total_pages?.let {
-                    _totalPages = it
+            repoImp.searchFilmsWithFlow(query = searchQuery, page = currentPage.toString())
+                .catch { e ->
+                    _resultsFlow.value = Event(Resource.error(e.localizedMessage))
                 }
-                _isLastPage = currentPage == TOTAL_PAGES
-                resultList?.let {
-                    oldSearchResultList.addAll(it)
-                    _results.postValue(Event(Resource.success(oldSearchResultList)))
+                .collect {
+                    _resultsFlow.value = Event(Resource.success(it?.results))
                 }
-                _isLoading = false
-
-            } else {
-                _isLoading = false
-                _results.postValue(Event(Resource.error(context.getString(R.string.error))))
-            }
-
         }
     }
 
 
     fun getFilms() {
         fromSearching = false
-        viewModelScope.launch(Dispatchers.IO) {
-            _results.postValue(Event(Resource.loading()))
+        viewModelScope.launch {
+
+            _resultsFlow.value = Event(Resource.loading())
             _isLoading = true
-            val response = try {
-                repoImp.getFilms(currentPage.toString())
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return@launch
-            }
 
-            if (response.isSuccessful) {
-
-                val resultList = response.body()?.results
-                response.body()?.total_pages?.let {
-                    _totalPages = it
+            repoImp.getFilmsWithFlow(currentPage.toString())
+                .catch { e ->
+                    _resultsFlow.value = Event(Resource.error(e.localizedMessage))
                 }
+                .collect {
+                    it?.total_pages?.let { rTotalPages ->
+                        _totalPages = rTotalPages
+                        _isLastPage = currentPage == TOTAL_PAGES
+                    }
+                    val resultList = it?.results
 
-                Log.d(TAG, "getFilm: ${TOTAL_PAGES}")
-                _isLastPage = currentPage == TOTAL_PAGES
-                resultList?.let {
-                    oldResultList.addAll(it)
+                    resultList?.let {
+                        oldResultList.addAll(it)
+                    }
+
+                    _isLoading = false
+                    _resultsFlow.value = Event(Resource.success(oldResultList))
 
                 }
-                _isLoading = false
-                _results.postValue(Event(Resource.success(oldResultList)))
-
-            } else {
-                _isLoading = false
-                _results.postValue(Event(Resource.error(context.getString(R.string.error))))
-            }
 
         }
     }
 
-    fun clearSearchList(){
+    fun clearSearchList() {
         currentPage = 1
         oldSearchResultList.clear()
     }
 
+    fun <T> Flow<T>.handleError(): Flow<T> = flow {
+        try {
+            collect { value -> emit(value) }
+        } catch (e: Throwable) {
+
+        }
+    }
 
 }

@@ -10,39 +10,37 @@ import com.altintasomer.etscase.utils.Event
 import com.altintasomer.etscase.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
 
 private const val TAG = "DetailViewModel"
+
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-   private val repoImp: RepoImp
-)  : ViewModel(){
+    private val repoImp: RepoImp
+) : ViewModel() {
 
-    private val _filmDetail = MutableLiveData<Event<Resource<FilmDetail>>>()
+    private val _filmDetail =
+        MutableStateFlow<Event<Resource<FilmDetail>>>(Event(Resource.loading()))
     val filmDetail get() = _filmDetail
 
-    fun getFilmDetail(id : String){
+    fun getFilmDetail(id: String) {
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
 
-            _filmDetail.postValue(Event(Resource.loading()))
+            _filmDetail.value = Event(Resource.loading())
 
-            val response = try {
-                repoImp.getFilmDetail(id)
-            }catch (e: Exception){
-                e.printStackTrace()
-                return@launch
-            }
-
-            if (response.isSuccessful){
-                Log.d(TAG, "getFilmDetail: ${response.body()}")
-                _filmDetail.postValue(Event(Resource.success(response.body())))
-            }else{
-                Log.d(TAG, "getFilmDetail: error")
-                _filmDetail.postValue(Event(Resource.error("Error")))
-            }
+            repoImp.getFilmDetailWithFlow(tv_id = id)
+                .catch { e ->
+                    filmDetail.value = Event(Resource.error(e.localizedMessage))
+                }
+                .collect {
+                    _filmDetail.value = Event(Resource.success(it))
+                }
         }
     }
 }
