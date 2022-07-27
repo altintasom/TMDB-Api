@@ -7,7 +7,7 @@
         <variable
 
             name="filmDetail"
-            type="com.altintasomer.etscase.model.network.FilmDetail" />
+            type="com.altintasomer.tmdbapi.domain.model.FilmDetail" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:927073204666:android:5d5bad70f13a73a6da8583",
+        "mobilesdk_app_id": "1:927073204666:android:6040d41022b75e76da8583",
         "android_client_info": {
-          "package_name": "com.altintasomer.etscase"
+          "package_name": "com.altintasomer.tmdbapi"
         }
       },
       "oauth_client": [
